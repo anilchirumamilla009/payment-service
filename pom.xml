@@ -133,13 +133,14 @@
                             <generateModelDocumentation>false</generateModelDocumentation>
                             <configOptions>
                                 <dateLibrary>java8</dateLibrary>
-                                <delegatePattern>true</delegatePattern>
+                                <delegatePattern>false</delegatePattern>
                                 <documentationProvider>springdoc</documentationProvider>
                                 <hideGenerationTimestamp>true</hideGenerationTimestamp>
-                                <interfaceOnly>false</interfaceOnly>
+                                <interfaceOnly>true</interfaceOnly>
                                 <openApiNullable>false</openApiNullable>
                                 <performBeanValidation>true</performBeanValidation>
                                 <sourceFolder>src/main/java</sourceFolder>
+                                <skipDefaultInterface>true</skipDefaultInterface>
                                 <useJakartaEe>true</useJakartaEe>
                                 <useResponseEntity>true</useResponseEntity>
                                 <useSpringBoot3>true</useSpringBoot3>
@@ -190,6 +191,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.techwave.paymentservice.PaymentServiceApplication</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -34,17 +34,17 @@ public class SecurityConfig {
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
             // OWASP security headers
-            .headers(headers -> headers
-                .contentTypeOptions(Customizer.withDefaults())                       // X-Content-Type-Options: nosniff
-                .frameOptions(fo -> fo.deny())                                        // X-Frame-Options: DENY
-                .xssProtection(xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
-                .httpStrictTransportSecurity(hsts -> hsts
+            .headers(headers -> {
+                headers.contentTypeOptions(Customizer.withDefaults());                        // X-Content-Type-Options: nosniff
+                headers.frameOptions(fo -> fo.deny());                                        // X-Frame-Options: DENY
+                headers.xssProtection(xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK));
+                headers.httpStrictTransportSecurity(hsts -> hsts
                     .includeSubDomains(true)
-                    .maxAgeInSeconds(31536000))                                       // HSTS 1 year
-                .referrerPolicy(rp -> rp.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
-                .permissionsPolicy(pp -> pp.policy("geolocation=(), camera=(), microphone=()"))
-                .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; frame-ancestors 'none'"))
-            )
+                    .maxAgeInSeconds(31536000));                                               // HSTS 1 year
+                headers.referrerPolicy(rp -> rp.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN));
+                headers.permissionsPolicy(pp -> pp.policy("geolocation=(), camera=(), microphone=()"));
+                headers.contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; frame-ancestors 'none'"));
+            })
 
             // Endpoint authorization
             .authorizeHttpRequests(auth -> auth
