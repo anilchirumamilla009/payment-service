@@ -1,0 +1,95 @@
+package com.techwave.paymentservice.dto;
+
+import java.math.BigDecimal;
+
+/**
+ * DTO representing a silo, matching the OpenAPI Silo schema.
+ */
+public class SiloDto {
+
+    private String id;
+    private String resourceType = "silos";
+    private String name;
+    private String description;
+    private String email;
+    private String defaultBaseCurrency;
+    private BigDecimal defaultCreditLimit;
+    private BigDecimal defaultProfitShare;
+    private String type;
+
+    public SiloDto() {
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getResourceType() {
+        return resourceType;
+    }
+
+    public void setResourceType(String resourceType) {
+        this.resourceType = resourceType;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getDefaultBaseCurrency() {
+        return defaultBaseCurrency;
+    }
+
+    public void setDefaultBaseCurrency(String defaultBaseCurrency) {
+        this.defaultBaseCurrency = defaultBaseCurrency;
+    }
+
+    public BigDecimal getDefaultCreditLimit() {
+        return defaultCreditLimit;
+    }
+
+    public void setDefaultCreditLimit(BigDecimal defaultCreditLimit) {
+        this.defaultCreditLimit = defaultCreditLimit;
+    }
+
+    public BigDecimal getDefaultProfitShare() {
+        return defaultProfitShare;
+    }
+
+    public void setDefaultProfitShare(BigDecimal defaultProfitShare) {
+        this.defaultProfitShare = defaultProfitShare;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+}
+
