@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,11 +22,13 @@ import java.util.UUID;
  * update, and audit trail tracking.
  */
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class PersonServiceImpl implements PersonService {
 
     private static final Logger log =
             LoggerFactory.getLogger(PersonServiceImpl.class);
+
+    private static final String RESOURCE_TYPE = "Person";
 
     private final PersonRepository personRepository;
     private final PersonAuditRepository personAuditRepository;
@@ -43,6 +44,7 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
+    @Transactional
     public PersonDto createPerson(PersonDto personDto) {
         log.debug("Creating person: {} {}",
                 personDto.getFirstName(),
@@ -50,8 +52,6 @@ public class PersonServiceImpl implements PersonService {
         PersonEntity entity = personMapper.toEntity(personDto);
         entity.setId(UUID.randomUUID());
         entity.setVersion(1);
-        entity.setCreatedAt(LocalDateTime.now());
-        entity.setUpdatedAt(LocalDateTime.now());
 
         PersonEntity saved = personRepository.save(entity);
         createAuditRecord(saved);
@@ -61,28 +61,26 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public PersonDto getPersonById(UUID uuid) {
         log.debug("Fetching person with id: {}", uuid);
         return personRepository.findById(uuid)
                 .map(personMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Person", uuid.toString()));
+                        RESOURCE_TYPE, uuid.toString()));
     }
 
     @Override
+    @Transactional
     public PersonDto updatePerson(UUID uuid,
                                   PersonDto personDto) {
         log.debug("Updating person with id: {}", uuid);
         PersonEntity entity = personRepository.findById(uuid)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Person", uuid.toString()));
+                        RESOURCE_TYPE, uuid.toString()));
 
         personMapper.updateEntity(personDto, entity);
-        entity.setVersion(entity.getVersion() + 1);
-        entity.setUpdatedAt(LocalDateTime.now());
 
-        PersonEntity saved = personRepository.save(entity);
+        PersonEntity saved = personRepository.saveAndFlush(entity);
         createAuditRecord(saved);
 
         log.info("Person updated with id: {}, version: {}",
@@ -91,13 +89,11 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<PersonAuditDto> getAuditTrail(UUID uuid) {
         log.debug("Fetching audit trail for person: {}", uuid);
-        // Verify the person exists first
         if (!personRepository.existsById(uuid)) {
             throw new ResourceNotFoundException(
-                    "Person", uuid.toString());
+                    RESOURCE_TYPE, uuid.toString());
         }
         List<PersonAuditEntity> audits =
                 personAuditRepository
@@ -116,11 +112,9 @@ public class PersonServiceImpl implements PersonService {
         audit.setFirstName(entity.getFirstName());
         audit.setLastName(entity.getLastName());
         audit.setDuplicates(entity.getDuplicates());
-        audit.setCreatedAt(LocalDateTime.now());
         personAuditRepository.save(audit);
-        log.debug("Audit record created for person: {},"
-                + " version: {}",
+        log.debug("Audit record created for person: {}, "
+                + "version: {}",
                 entity.getId(), entity.getVersion());
     }
 }
-

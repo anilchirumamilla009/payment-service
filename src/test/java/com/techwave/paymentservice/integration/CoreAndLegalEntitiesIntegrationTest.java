@@ -25,6 +25,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("Core & Legal-Entities Integration Tests")
 class CoreAndLegalEntitiesIntegrationTest {
 
+    private static final String API = "/api/v1";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -36,7 +38,7 @@ class CoreAndLegalEntitiesIntegrationTest {
     @Test
     @DisplayName("GET /countries returns seeded data")
     void getCountries_returnsSeededData() throws Exception {
-        mockMvc.perform(get("/countries"))
+        mockMvc.perform(get(API + "/countries"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(10))))
                 .andExpect(jsonPath("$[0].id").exists())
@@ -46,7 +48,7 @@ class CoreAndLegalEntitiesIntegrationTest {
     @Test
     @DisplayName("GET /countries/{id} returns single country")
     void getCountry_returnsCountry() throws Exception {
-        mockMvc.perform(get("/countries/US"))
+        mockMvc.perform(get(API + "/countries/US"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is("US")))
                 .andExpect(jsonPath("$.name",
@@ -58,7 +60,7 @@ class CoreAndLegalEntitiesIntegrationTest {
     @Test
     @DisplayName("GET /countries/{id} returns 404 for unknown id")
     void getCountry_notFound() throws Exception {
-        mockMvc.perform(get("/countries/ZZ"))
+        mockMvc.perform(get(API + "/countries/ZZ"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status", is(404)));
     }
@@ -68,7 +70,7 @@ class CoreAndLegalEntitiesIntegrationTest {
     @Test
     @DisplayName("GET /currencies returns seeded data")
     void getCurrencies_returnsSeededData() throws Exception {
-        mockMvc.perform(get("/currencies"))
+        mockMvc.perform(get(API + "/currencies"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(10))))
                 .andExpect(jsonPath("$[0].resourceType",
@@ -78,7 +80,7 @@ class CoreAndLegalEntitiesIntegrationTest {
     @Test
     @DisplayName("GET /currencies/{id} returns single currency")
     void getCurrency_returnsCurrency() throws Exception {
-        mockMvc.perform(get("/currencies/USD"))
+        mockMvc.perform(get(API + "/currencies/USD"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is("USD")))
                 .andExpect(jsonPath("$.name",
@@ -90,7 +92,7 @@ class CoreAndLegalEntitiesIntegrationTest {
     @Test
     @DisplayName("GET /silos returns seeded data")
     void getSilos_returnsSeededData() throws Exception {
-        mockMvc.perform(get("/silos"))
+        mockMvc.perform(get(API + "/silos"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$",
                         hasSize(greaterThanOrEqualTo(3))))
@@ -101,7 +103,7 @@ class CoreAndLegalEntitiesIntegrationTest {
     @Test
     @DisplayName("GET /silos/{id} returns single silo")
     void getSilo_returnsSilo() throws Exception {
-        mockMvc.perform(get("/silos/TREASURY_01"))
+        mockMvc.perform(get(API + "/silos/TREASURY_01"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is("TREASURY_01")))
                 .andExpect(jsonPath("$.name", is("Main Treasury")))
@@ -119,11 +121,11 @@ class CoreAndLegalEntitiesIntegrationTest {
         createDto.setLastName("Smith");
 
         MvcResult createResult = mockMvc.perform(
-                post("/people")
+                post(API + "/people")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper
                                 .writeValueAsString(createDto)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.firstName", is("Alice")))
                 .andExpect(jsonPath("$.resourceType", is("people")))
@@ -134,16 +136,17 @@ class CoreAndLegalEntitiesIntegrationTest {
                 .get("id").asText();
 
         // Get
-        mockMvc.perform(get("/people/" + uuid))
+        mockMvc.perform(get(API + "/people/" + uuid))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName", is("Alice")));
 
         // Update
         PersonDto updateDto = new PersonDto();
         updateDto.setFirstName("Alicia");
+        updateDto.setLastName("Smith");
 
         mockMvc.perform(
-                patch("/people/" + uuid)
+                patch(API + "/people/" + uuid)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper
                                 .writeValueAsString(updateDto)))
@@ -151,7 +154,7 @@ class CoreAndLegalEntitiesIntegrationTest {
                 .andExpect(jsonPath("$.firstName", is("Alicia")));
 
         // Audit trail
-        mockMvc.perform(get("/people/" + uuid + "/audit-trail"))
+        mockMvc.perform(get(API + "/people/" + uuid + "/audit-trail"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].version", is(1)))
@@ -173,10 +176,10 @@ class CoreAndLegalEntitiesIntegrationTest {
                 """;
 
         MvcResult createResult = mockMvc.perform(
-                post("/corporations")
+                post(API + "/corporations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name", is("Test Corp")))
                 .andExpect(jsonPath("$.resourceType",
                         is("corporations")))
@@ -187,18 +190,18 @@ class CoreAndLegalEntitiesIntegrationTest {
                 .get("id").asText();
 
         // GET by uuid
-        mockMvc.perform(get("/corporations/" + uuid))
+        mockMvc.perform(get(API + "/corporations/" + uuid))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", is("TCORP")));
 
         // GET by country/code
-        mockMvc.perform(get("/corporations/IE/TCORP"))
+        mockMvc.perform(get(API + "/corporations/IE/TCORP"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("Test Corp")));
 
         // Audit trail
         mockMvc.perform(
-                get("/corporations/" + uuid + "/audit-trail"))
+                get(API + "/corporations/" + uuid + "/audit-trail"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
     }

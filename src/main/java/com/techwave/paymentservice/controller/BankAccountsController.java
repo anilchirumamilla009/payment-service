@@ -4,13 +4,17 @@ import com.techwave.paymentservice.dto.BankAccountAuditDto;
 import com.techwave.paymentservice.dto.BankAccountDto;
 import com.techwave.paymentservice.dto.LegalEntityDto;
 import com.techwave.paymentservice.service.BankAccountService;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -21,6 +25,7 @@ import java.util.UUID;
  * Corresponds to the "bank-accounts" tag in the OpenAPI specification.
  */
 @RestController
+@RequestMapping("/api/v1")
 public class BankAccountsController {
 
     private static final Logger log =
@@ -33,17 +38,17 @@ public class BankAccountsController {
     }
 
     @PutMapping(value = "/bank-accounts",
-                consumes = "application/json",
-                produces = "application/json")
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BankAccountDto> createBankAccount(
-            @RequestBody BankAccountDto body) {
+            @Valid @RequestBody BankAccountDto body) {
         log.debug("PUT /bank-accounts");
-        return ResponseEntity.ok(
-                bankAccountService.createOrLocateBankAccount(body));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(bankAccountService.createOrLocateBankAccount(body));
     }
 
     @GetMapping(value = "/bank-accounts/{uuid}",
-                produces = "application/json")
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BankAccountDto> getBankAccount(
             @PathVariable("uuid") UUID uuid) {
         log.debug("GET /bank-accounts/{}", uuid);
@@ -52,7 +57,7 @@ public class BankAccountsController {
     }
 
     @GetMapping(value = "/bank-accounts/{uuid}/audit-trail",
-                produces = "application/json")
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<BankAccountAuditDto>>
             getBankAccountAuditTrail(
                     @PathVariable("uuid") UUID uuid) {
@@ -62,7 +67,7 @@ public class BankAccountsController {
     }
 
     @GetMapping(value = "/bank-accounts/{uuid}/beneficial-owners",
-                produces = "application/json")
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<LegalEntityDto>>
             getBankAccountBeneficialOwners(
                     @PathVariable("uuid") UUID uuid) {
@@ -71,4 +76,3 @@ public class BankAccountsController {
                 bankAccountService.getBeneficialOwners(uuid));
     }
 }
-

@@ -1,5 +1,7 @@
 package com.techwave.paymentservice.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.util.UUID;
 
 /**
@@ -10,20 +12,40 @@ public class BankAccountDto {
 
     private UUID id;
     private String resourceType = "bank-accounts";
-    private String beneficiary;
-    private String beneficiaryAddress;
-    private String nickname;
-    private String iban;
-    private String bic;
-    private String accountNumber;
-    private String nationalBankCode;
-    private String nationalBranchCode;
-    private String nationalClearingCode;
-    private String currency;
-    private String country;
 
-    public BankAccountDto() {
-    }
+    @NotBlank(message = "Beneficiary is required")
+    @Size(max = 255, message = "Beneficiary must not exceed 255 characters")
+    private String beneficiary;
+
+    @Size(max = 500, message = "Beneficiary address must not exceed 500 characters")
+    private String beneficiaryAddress;
+
+    @Size(max = 255, message = "Nickname must not exceed 255 characters")
+    private String nickname;
+
+    @Size(max = 34, message = "IBAN must not exceed 34 characters")
+    private String iban;
+
+    @Size(max = 11, message = "BIC must not exceed 11 characters")
+    private String bic;
+
+    @Size(max = 50, message = "Account number must not exceed 50 characters")
+    private String accountNumber;
+
+    @Size(max = 50, message = "National bank code must not exceed 50 characters")
+    private String nationalBankCode;
+
+    @Size(max = 50, message = "National branch code must not exceed 50 characters")
+    private String nationalBranchCode;
+
+    @Size(max = 50, message = "National clearing code must not exceed 50 characters")
+    private String nationalClearingCode;
+
+    @Size(max = 3, message = "Currency must be a 3-letter ISO code")
+    private String currency;
+
+    @Size(max = 2, message = "Country must be a 2-letter ISO code")
+    private String country;
 
     public UUID getId() {
         return id;
@@ -129,4 +151,3 @@ public class BankAccountDto {
         this.country = country;
     }
 }
-

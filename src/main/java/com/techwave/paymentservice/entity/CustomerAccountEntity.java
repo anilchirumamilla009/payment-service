@@ -2,6 +2,7 @@ package com.techwave.paymentservice.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -10,6 +11,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -22,6 +26,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "customer_accounts")
+@EntityListeners(AuditingEntityListener.class)
 public class CustomerAccountEntity {
 
     @Id
@@ -51,9 +56,11 @@ public class CustomerAccountEntity {
     @Column(name = "silo", length = 100)
     private String silo;
 
+    @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
@@ -65,8 +72,6 @@ public class CustomerAccountEntity {
     )
     private Set<LegalEntityBase> beneficialOwners = new HashSet<>();
 
-    public CustomerAccountEntity() {
-    }
 
     public UUID getId() {
         return id;
@@ -154,6 +159,18 @@ public class CustomerAccountEntity {
 
     public void setBeneficialOwners(Set<LegalEntityBase> beneficialOwners) {
         this.beneficialOwners = beneficialOwners;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CustomerAccountEntity that)) return false;
+        return id != null && id.equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 
     /**

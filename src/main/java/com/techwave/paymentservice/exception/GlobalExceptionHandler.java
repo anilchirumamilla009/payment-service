@@ -16,7 +16,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Global exception handler that maps application and framework exceptions
@@ -30,7 +29,7 @@ public class GlobalExceptionHandler {
             LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /**
-     * Handles 400 – resource not found by id / bad lookup.
+     * Handles 404 – resource not found by id / bad lookup.
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ExceptionDetailDto> handleResourceNotFound(
@@ -69,7 +68,7 @@ public class GlobalExceptionHandler {
                 .getFieldErrors()
                 .stream()
                 .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
-                .collect(Collectors.toList());
+                .toList();
         log.warn("Validation failed: {}", messages);
         ExceptionDetailDto detail = buildDetail(
                 HttpStatus.BAD_REQUEST.value(),
@@ -88,7 +87,7 @@ public class GlobalExceptionHandler {
         List<String> messages = ex.getConstraintViolations()
                 .stream()
                 .map(cv -> cv.getPropertyPath() + ": " + cv.getMessage())
-                .collect(Collectors.toList());
+                .toList();
         log.warn("Constraint violation: {}", messages);
         ExceptionDetailDto detail = buildDetail(
                 HttpStatus.BAD_REQUEST.value(),

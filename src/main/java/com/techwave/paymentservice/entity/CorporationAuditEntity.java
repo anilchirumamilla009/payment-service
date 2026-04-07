@@ -2,10 +2,13 @@ package com.techwave.paymentservice.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -16,6 +19,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "corporation_audits")
+@EntityListeners(AuditingEntityListener.class)
 public class CorporationAuditEntity {
 
     @Id
@@ -47,11 +51,9 @@ public class CorporationAuditEntity {
     @Column(name = "duplicates")
     private UUID duplicates;
 
+    @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-
-    public CorporationAuditEntity() {
-    }
 
     public Long getId() {
         return id;
@@ -132,5 +134,16 @@ public class CorporationAuditEntity {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-}
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CorporationAuditEntity that)) return false;
+        return id != null && id.equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+}

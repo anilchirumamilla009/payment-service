@@ -42,9 +42,6 @@ public class SiloEntity {
     @Column(name = "type", length = 50)
     private SiloType type;
 
-    public SiloEntity() {
-    }
-
     public String getId() {
         return id;
     }
@@ -107,6 +104,18 @@ public class SiloEntity {
 
     public void setType(SiloType type) {
         this.type = type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SiloEntity that)) return false;
+        return id != null && id.equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 
     /**

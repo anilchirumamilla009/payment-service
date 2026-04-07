@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,11 +25,13 @@ import java.util.UUID;
  * same IBAN already exists it is returned instead of creating a duplicate.
  */
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class BankAccountServiceImpl implements BankAccountService {
 
     private static final Logger log =
             LoggerFactory.getLogger(BankAccountServiceImpl.class);
+
+    private static final String RESOURCE_TYPE = "BankAccount";
 
     private final BankAccountRepository bankAccountRepository;
     private final BankAccountAuditRepository bankAccountAuditRepository;
@@ -46,8 +47,10 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
+    @Transactional
     public BankAccountDto createOrLocateBankAccount(BankAccountDto dto) {
-        log.debug("Create-or-locate bank account, iban: {}", dto.getIban());
+        String maskedIban = maskIban(dto.getIban());
+        log.debug("Create-or-locate bank account, iban: {}", maskedIban);
 
         // Idempotent: return existing account if IBAN matches
         if (dto.getIban() != null) {
@@ -55,7 +58,7 @@ public class BankAccountServiceImpl implements BankAccountService {
                     bankAccountRepository.findByIban(dto.getIban());
             if (existing.isPresent()) {
                 log.info("Bank account already exists for iban: {}",
-                        dto.getIban());
+                        maskedIban);
                 return bankAccountMapper.toDto(existing.get());
             }
         }
@@ -63,8 +66,6 @@ public class BankAccountServiceImpl implements BankAccountService {
         BankAccountEntity entity = bankAccountMapper.toEntity(dto);
         entity.setId(UUID.randomUUID());
         entity.setVersion(1);
-        entity.setCreatedAt(LocalDateTime.now());
-        entity.setUpdatedAt(LocalDateTime.now());
 
         BankAccountEntity saved = bankAccountRepository.save(entity);
         createAuditRecord(saved);
@@ -74,22 +75,20 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public BankAccountDto getBankAccountById(UUID uuid) {
         log.debug("Fetching bank account with id: {}", uuid);
         return bankAccountRepository.findById(uuid)
                 .map(bankAccountMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "BankAccount", uuid.toString()));
+                        RESOURCE_TYPE, uuid.toString()));
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<BankAccountAuditDto> getAuditTrail(UUID uuid) {
         log.debug("Fetching audit trail for bank account: {}", uuid);
         if (!bankAccountRepository.existsById(uuid)) {
             throw new ResourceNotFoundException(
-                    "BankAccount", uuid.toString());
+                    RESOURCE_TYPE, uuid.toString());
         }
         List<BankAccountAuditEntity> audits =
                 bankAccountAuditRepository
@@ -98,13 +97,12 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<LegalEntityDto> getBeneficialOwners(UUID uuid) {
         log.debug("Fetching beneficial owners for bank account: {}",
                 uuid);
         BankAccountEntity entity = bankAccountRepository.findById(uuid)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "BankAccount", uuid.toString()));
+                        RESOURCE_TYPE, uuid.toString()));
         return bankAccountMapper
                 .toLegalEntityDtoList(entity.getBeneficialOwners());
     }
@@ -124,8 +122,16 @@ public class BankAccountServiceImpl implements BankAccountService {
         audit.setNationalClearingCode(entity.getNationalClearingCode());
         audit.setCurrency(entity.getCurrency());
         audit.setCountry(entity.getCountry());
-        audit.setCreatedAt(LocalDateTime.now());
         bankAccountAuditRepository.save(audit);
     }
-}
 
+    /**
+     * Masks an IBAN for safe logging, showing only the first 4 characters.
+     */
+    private String maskIban(String iban) {
+        if (iban == null || iban.length() <= 4) {
+            return "****";
+        }
+        return iban.substring(0, 4) + "***";
+    }
+}

@@ -23,6 +23,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("Bank & Customer Account Integration Tests")
 class AccountsIntegrationTest {
 
+    private static final String API = "/api/v1";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -45,10 +47,10 @@ class AccountsIntegrationTest {
                 """;
 
         MvcResult result = mockMvc.perform(
-                put("/bank-accounts")
+                put(API + "/bank-accounts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.iban",
                         is("GB29NWBK60161331926819")))
@@ -61,14 +63,14 @@ class AccountsIntegrationTest {
                 .get("id").asText();
 
         // GET by uuid
-        mockMvc.perform(get("/bank-accounts/" + uuid))
+        mockMvc.perform(get(API + "/bank-accounts/" + uuid))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.beneficiary",
                         is("John Doe")));
 
         // Audit trail
         mockMvc.perform(
-                get("/bank-accounts/" + uuid + "/audit-trail"))
+                get(API + "/bank-accounts/" + uuid + "/audit-trail"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].version", is(1)));
@@ -89,10 +91,10 @@ class AccountsIntegrationTest {
 
         // First call – creates
         MvcResult first = mockMvc.perform(
-                put("/bank-accounts")
+                put(API + "/bank-accounts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn();
 
         String firstId = objectMapper.readTree(
@@ -101,10 +103,10 @@ class AccountsIntegrationTest {
 
         // Second call – locates existing
         MvcResult second = mockMvc.perform(
-                put("/bank-accounts")
+                put(API + "/bank-accounts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn();
 
         String secondId = objectMapper.readTree(
@@ -118,7 +120,7 @@ class AccountsIntegrationTest {
     @DisplayName("GET /bank-accounts/{uuid} returns 404 for unknown")
     void getBankAccount_notFound() throws Exception {
         mockMvc.perform(get(
-                "/bank-accounts/00000000-0000-0000-0000-000000000000"))
+                API + "/bank-accounts/00000000-0000-0000-0000-000000000000"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status", is(404)));
     }
@@ -137,10 +139,10 @@ class AccountsIntegrationTest {
                 """;
 
         MvcResult result = mockMvc.perform(
-                put("/bank-accounts")
+                put(API + "/bank-accounts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn();
 
         String uuid = objectMapper.readTree(
@@ -148,7 +150,7 @@ class AccountsIntegrationTest {
                 .get("id").asText();
 
         mockMvc.perform(
-                get("/bank-accounts/" + uuid + "/beneficial-owners"))
+                get(API + "/bank-accounts/" + uuid + "/beneficial-owners"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
@@ -159,7 +161,7 @@ class AccountsIntegrationTest {
     @DisplayName("GET /customer-accounts/{uuid} returns 404 for unknown")
     void getCustomerAccount_notFound() throws Exception {
         mockMvc.perform(get(
-                "/customer-accounts/"
+                API + "/customer-accounts/"
                         + "00000000-0000-0000-0000-000000000000"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status", is(404)));
@@ -170,7 +172,7 @@ class AccountsIntegrationTest {
     @Test
     @DisplayName("Invalid UUID returns 400")
     void invalidUuid_returns400() throws Exception {
-        mockMvc.perform(get("/people/not-a-uuid"))
+        mockMvc.perform(get(API + "/people/not-a-uuid"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status", is(400)));
     }
@@ -179,4 +181,3 @@ class AccountsIntegrationTest {
         org.junit.jupiter.api.Assertions.assertEquals(expected, actual);
     }
 }
-

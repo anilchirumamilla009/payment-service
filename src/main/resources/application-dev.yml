@@ -1,0 +1,11 @@
+# Development profile overrides
+spring:
+  h2:
+    console:
+      enabled: true
+
+logging:
+  level:
+    com.techwave.paymentservice: DEBUG
+    org.hibernate.SQL: DEBUG
+

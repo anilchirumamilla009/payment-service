@@ -8,9 +8,11 @@ import com.techwave.paymentservice.service.CurrencyService;
 import com.techwave.paymentservice.service.SiloService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.List;
  * Corresponds to the "core" tag in the OpenAPI specification.
  */
 @RestController
+@RequestMapping("/api/v1")
 public class CoreController {
 
     private static final Logger log =
@@ -41,14 +44,14 @@ public class CoreController {
     // ── Countries ────────────────────────────────────────────
 
     @GetMapping(value = "/countries",
-                produces = "application/json")
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<CountryDto>> getCountries() {
         log.debug("GET /countries");
         return ResponseEntity.ok(countryService.getAllCountries());
     }
 
     @GetMapping(value = "/countries/{id}",
-                produces = "application/json")
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CountryDto> getCountry(
             @PathVariable("id") String id) {
         log.debug("GET /countries/{}", id);
@@ -58,14 +61,14 @@ public class CoreController {
     // ── Currencies ───────────────────────────────────────────
 
     @GetMapping(value = "/currencies",
-                produces = "application/json")
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<CurrencyDto>> getCurrencies() {
         log.debug("GET /currencies");
         return ResponseEntity.ok(currencyService.getAllCurrencies());
     }
 
     @GetMapping(value = "/currencies/{id}",
-                produces = "application/json")
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CurrencyDto> getCurrency(
             @PathVariable("id") String id) {
         log.debug("GET /currencies/{}", id);
@@ -75,18 +78,17 @@ public class CoreController {
     // ── Silos ────────────────────────────────────────────────
 
     @GetMapping(value = "/silos",
-                produces = "application/json")
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SiloDto>> getSilos() {
         log.debug("GET /silos");
         return ResponseEntity.ok(siloService.getAllSilos());
     }
 
     @GetMapping(value = "/silos/{id}",
-                produces = "application/json")
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SiloDto> getSilo(
             @PathVariable("id") String id) {
         log.debug("GET /silos/{}", id);
         return ResponseEntity.ok(siloService.getSiloById(id));
     }
 }
-

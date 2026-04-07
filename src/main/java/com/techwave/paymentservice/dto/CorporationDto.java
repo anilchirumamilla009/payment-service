@@ -1,5 +1,7 @@
 package com.techwave.paymentservice.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -11,15 +13,24 @@ public class CorporationDto {
 
     private UUID id;
     private String resourceType = "corporations";
+
+    @NotBlank(message = "Corporation name is required")
+    @Size(max = 255, message = "Name must not exceed 255 characters")
     private String name;
+
+    @Size(max = 100, message = "Code must not exceed 100 characters")
     private String code;
+
     private LocalDate incorporationDate;
+
+    @Size(max = 2, message = "Incorporation country must be a 2-letter ISO code")
     private String incorporationCountry;
+
+    @Size(max = 100, message = "Type must not exceed 100 characters")
     private String type;
+
     private UUID duplicates;
 
-    public CorporationDto() {
-    }
 
     public UUID getId() {
         return id;
@@ -85,4 +96,3 @@ public class CorporationDto {
         this.duplicates = duplicates;
     }
 }
-

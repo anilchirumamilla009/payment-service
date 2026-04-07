@@ -9,10 +9,10 @@ spring:
     username: sa
     password:
 
-  # H2 Console (accessible at /h2-console)
+  # H2 Console (disabled by default for security; enable via dev profile)
   h2:
     console:
-      enabled: true
+      enabled: false
       path: /h2-console
 
   # JPA Configuration
@@ -31,9 +31,20 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
-# Logging
+# Logging (production-safe defaults; use dev profile for DEBUG)
 logging:
   level:
-    com.techwave.paymentservice: DEBUG
+    com.techwave.paymentservice: INFO
     org.springframework.web: INFO
-    org.hibernate.SQL: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%X{correlationId}] %-5level %logger{36} - %msg%n"
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized

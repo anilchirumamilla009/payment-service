@@ -153,7 +153,7 @@ class CorporationServiceTest {
 
         when(corporationRepository.findById(corpId))
                 .thenReturn(Optional.of(entity));
-        when(corporationRepository.save(entity))
+        when(corporationRepository.saveAndFlush(entity))
                 .thenReturn(updatedEntity);
         when(corporationMapper.toDto(updatedEntity))
                 .thenReturn(updatedDto);

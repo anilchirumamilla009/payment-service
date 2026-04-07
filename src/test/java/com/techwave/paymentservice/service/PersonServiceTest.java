@@ -124,7 +124,7 @@ class PersonServiceTest {
 
         when(personRepository.findById(personId))
                 .thenReturn(Optional.of(entity));
-        when(personRepository.save(entity)).thenReturn(updatedEntity);
+        when(personRepository.saveAndFlush(entity)).thenReturn(updatedEntity);
         when(personMapper.toDto(updatedEntity)).thenReturn(updatedDto);
 
         PersonDto result = personService.updatePerson(personId, updateDto);

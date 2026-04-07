@@ -6,14 +6,18 @@ import com.techwave.paymentservice.dto.PersonAuditDto;
 import com.techwave.paymentservice.dto.PersonDto;
 import com.techwave.paymentservice.service.CorporationService;
 import com.techwave.paymentservice.service.PersonService;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -25,6 +29,7 @@ import java.util.UUID;
  * Corresponds to the "legal-entities" tag in the OpenAPI specification.
  */
 @RestController
+@RequestMapping("/api/v1")
 public class LegalEntitiesController {
 
     private static final Logger log =
@@ -42,16 +47,17 @@ public class LegalEntitiesController {
     // ── People ───────────────────────────────────────────────
 
     @PostMapping(value = "/people",
-                 consumes = "application/json",
-                 produces = "application/json")
+                 consumes = MediaType.APPLICATION_JSON_VALUE,
+                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PersonDto> createPerson(
-            @RequestBody PersonDto body) {
+            @Valid @RequestBody PersonDto body) {
         log.debug("POST /people");
-        return ResponseEntity.ok(personService.createPerson(body));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(personService.createPerson(body));
     }
 
     @GetMapping(value = "/people/{uuid}",
-                produces = "application/json")
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PersonDto> getPerson(
             @PathVariable("uuid") UUID uuid) {
         log.debug("GET /people/{}", uuid);
@@ -59,18 +65,18 @@ public class LegalEntitiesController {
     }
 
     @PatchMapping(value = "/people/{uuid}",
-                  consumes = "application/json",
-                  produces = "application/json")
+                  consumes = MediaType.APPLICATION_JSON_VALUE,
+                  produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PersonDto> updatePerson(
             @PathVariable("uuid") UUID uuid,
-            @RequestBody PersonDto body) {
+            @Valid @RequestBody PersonDto body) {
         log.debug("PATCH /people/{}", uuid);
         return ResponseEntity.ok(
                 personService.updatePerson(uuid, body));
     }
 
     @GetMapping(value = "/people/{uuid}/audit-trail",
-                produces = "application/json")
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<PersonAuditDto>> getPersonAuditTrail(
             @PathVariable("uuid") UUID uuid) {
         log.debug("GET /people/{}/audit-trail", uuid);
@@ -80,17 +86,17 @@ public class LegalEntitiesController {
     // ── Corporations ─────────────────────────────────────────
 
     @PostMapping(value = "/corporations",
-                 consumes = "application/json",
-                 produces = "application/json")
+                 consumes = MediaType.APPLICATION_JSON_VALUE,
+                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CorporationDto> createCorporation(
-            @RequestBody CorporationDto body) {
+            @Valid @RequestBody CorporationDto body) {
         log.debug("POST /corporations");
-        return ResponseEntity.ok(
-                corporationService.createCorporation(body));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(corporationService.createCorporation(body));
     }
 
     @GetMapping(value = "/corporations/{uuid}",
-                produces = "application/json")
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CorporationDto> getCorporation(
             @PathVariable("uuid") UUID uuid) {
         log.debug("GET /corporations/{}", uuid);
@@ -99,18 +105,18 @@ public class LegalEntitiesController {
     }
 
     @PatchMapping(value = "/corporations/{uuid}",
-                  consumes = "application/json",
-                  produces = "application/json")
+                  consumes = MediaType.APPLICATION_JSON_VALUE,
+                  produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CorporationDto> updateCorporation(
             @PathVariable("uuid") UUID uuid,
-            @RequestBody CorporationDto body) {
+            @Valid @RequestBody CorporationDto body) {
         log.debug("PATCH /corporations/{}", uuid);
         return ResponseEntity.ok(
                 corporationService.updateCorporation(uuid, body));
     }
 
     @GetMapping(value = "/corporations/{uuid}/audit-trail",
-                produces = "application/json")
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<CorporationAuditDto>>
             getCorporationAuditTrail(
                     @PathVariable("uuid") UUID uuid) {
@@ -120,7 +126,7 @@ public class LegalEntitiesController {
     }
 
     @GetMapping(value = "/corporations/{country}/{code}",
-                produces = "application/json")
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CorporationDto> getCorporationByCode(
             @PathVariable("country") String country,
             @PathVariable("code") String code) {
@@ -129,4 +135,3 @@ public class LegalEntitiesController {
                 corporationService.getCorporationByCode(country, code));
     }
 }
-

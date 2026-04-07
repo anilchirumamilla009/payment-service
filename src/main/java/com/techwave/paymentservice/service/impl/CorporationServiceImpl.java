@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,11 +23,13 @@ import java.util.UUID;
  * update, lookup by code, and audit trail tracking.
  */
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class CorporationServiceImpl implements CorporationService {
 
     private static final Logger log =
             LoggerFactory.getLogger(CorporationServiceImpl.class);
+
+    private static final String RESOURCE_TYPE = "Corporation";
 
     private final CorporationRepository corporationRepository;
     private final CorporationAuditRepository corporationAuditRepository;
@@ -44,13 +45,12 @@ public class CorporationServiceImpl implements CorporationService {
     }
 
     @Override
+    @Transactional
     public CorporationDto createCorporation(CorporationDto dto) {
         log.debug("Creating corporation: {}", dto.getName());
         CorporationEntity entity = corporationMapper.toEntity(dto);
         entity.setId(UUID.randomUUID());
         entity.setVersion(1);
-        entity.setCreatedAt(LocalDateTime.now());
-        entity.setUpdatedAt(LocalDateTime.now());
 
         CorporationEntity saved = corporationRepository.save(entity);
         createAuditRecord(saved);
@@ -60,28 +60,26 @@ public class CorporationServiceImpl implements CorporationService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public CorporationDto getCorporationById(UUID uuid) {
         log.debug("Fetching corporation with id: {}", uuid);
         return corporationRepository.findById(uuid)
                 .map(corporationMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Corporation", uuid.toString()));
+                        RESOURCE_TYPE, uuid.toString()));
     }
 
     @Override
+    @Transactional
     public CorporationDto updateCorporation(UUID uuid,
                                             CorporationDto dto) {
         log.debug("Updating corporation with id: {}", uuid);
         CorporationEntity entity = corporationRepository.findById(uuid)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Corporation", uuid.toString()));
+                        RESOURCE_TYPE, uuid.toString()));
 
         corporationMapper.updateEntity(dto, entity);
-        entity.setVersion(entity.getVersion() + 1);
-        entity.setUpdatedAt(LocalDateTime.now());
 
-        CorporationEntity saved = corporationRepository.save(entity);
+        CorporationEntity saved = corporationRepository.saveAndFlush(entity);
         createAuditRecord(saved);
 
         log.info("Corporation updated with id: {}, version: {}",
@@ -90,12 +88,11 @@ public class CorporationServiceImpl implements CorporationService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<CorporationAuditDto> getAuditTrail(UUID uuid) {
         log.debug("Fetching audit trail for corporation: {}", uuid);
         if (!corporationRepository.existsById(uuid)) {
             throw new ResourceNotFoundException(
-                    "Corporation", uuid.toString());
+                    RESOURCE_TYPE, uuid.toString());
         }
         List<CorporationAuditEntity> audits =
                 corporationAuditRepository
@@ -104,7 +101,6 @@ public class CorporationServiceImpl implements CorporationService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public CorporationDto getCorporationByCode(String country,
                                                String code) {
         log.debug("Fetching corporation by country: {}, code: {}",
@@ -113,7 +109,7 @@ public class CorporationServiceImpl implements CorporationService {
                 .findByIncorporationCountryAndCode(country, code)
                 .map(corporationMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Corporation",
+                        RESOURCE_TYPE,
                         "country=" + country + ", code=" + code));
     }
 
@@ -127,7 +123,6 @@ public class CorporationServiceImpl implements CorporationService {
         audit.setIncorporationCountry(entity.getIncorporationCountry());
         audit.setType(entity.getType());
         audit.setDuplicates(entity.getDuplicates());
-        audit.setCreatedAt(LocalDateTime.now());
         corporationAuditRepository.save(audit);
         log.debug("Audit record created for corporation: {}, version: {}",
                 entity.getId(), entity.getVersion());

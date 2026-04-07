@@ -4,10 +4,16 @@ import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -20,6 +26,7 @@ import java.util.UUID;
 @Table(name = "legal_entities")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "resource_type", discriminatorType = DiscriminatorType.STRING)
+@EntityListeners(AuditingEntityListener.class)
 public abstract class LegalEntityBase {
 
     @Id
@@ -32,17 +39,18 @@ public abstract class LegalEntityBase {
     @Column(name = "duplicates")
     private UUID duplicates;
 
+    @Version
     @Column(name = "version")
     private Integer version;
 
+    @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public LegalEntityBase() {
-    }
 
     public UUID getId() {
         return id;
@@ -91,5 +99,16 @@ public abstract class LegalEntityBase {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-}
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof LegalEntityBase that)) return false;
+        return id != null && id.equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+}
