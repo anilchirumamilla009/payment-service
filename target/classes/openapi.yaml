@@ -1,0 +1,905 @@
+openapi: 3.0.0
+info:
+   title: Core microservice API
+   version: ${project.version}
+   description: Service managing state and access to core data entities.
+   contact:
+      name: Stephen Flynn
+      email: stephen.flynn@cornerstonefs.com
+servers:
+-  url: http://localhost:8080
+tags:
+-  name: core
+   description: Bank Journal API / Transaction access
+-  name: legal-entities
+   description: Bank Journal API / Transaction access
+-  name: bank-accounts
+   description: Bank Journal API / Balance access
+-  name: customer-accounts
+   description: Bank Journal API / Balance access
+paths:
+   /countries:
+      get:
+         description: Retreive entire country collection.
+         tags:
+         - core
+         operationId: getCountries
+         responses:
+            200:
+               $ref: '#/components/responses/Countries'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+   /countries/{id}:
+      get:
+         description: Retrieve single country.
+         tags:
+         - core
+         operationId: getCountry
+         parameters:
+         -  $ref: '#/components/parameters/ID'
+         responses:
+            200:
+               $ref: '#/components/responses/Country'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+   /currencies:
+      get:
+         description: Retrieve entire currency collection.
+         tags:
+         - core
+         operationId: getCurrencies
+         responses:
+            200:
+               $ref: '#/components/responses/Currencies'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+   /currencies/{id}:
+      get:
+         description: Retreive single currency.
+         tags:
+         - core
+         operationId: getCurrency
+         parameters:
+         -  $ref: '#/components/parameters/ID'
+         responses:
+            200:
+               $ref: '#/components/responses/Currency'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+   /silos:
+      get:
+         description: Retreive entire silo collection.
+         tags:
+         - core
+         operationId: getSilos
+         responses:
+            200:
+               $ref: '#/components/responses/Silos'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+   /silos/{id}:
+      get:
+         description: Retreive single silo.
+         tags:
+         - core
+         operationId: getSilo
+         parameters:
+         -  $ref: '#/components/parameters/ID'
+         responses:
+            200:
+               $ref: '#/components/responses/Silo'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+   /corporations:
+      post:
+         description: Create a single corporation.
+         tags:
+         - legal-entities
+         operationId: createCorporation
+         requestBody:
+            $ref: '#/components/requestBodies/Corporation'
+         responses:
+            200:
+               $ref: '#/components/responses/Corporation'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+   /corporations/{uuid}:
+      get:
+         description: Retreive a single corporation based on its unique uuid primary key.
+         tags:
+         - legal-entities
+         operationId: getCorporation
+         parameters:
+         -  $ref: '#/components/parameters/UUID'
+         responses:
+            200:
+               $ref: '#/components/responses/Corporation'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+      patch:
+         description: Update a single corporation.
+         tags:
+         - legal-entities
+         operationId: updateCorporation
+         parameters:
+         -  $ref: '#/components/parameters/UUID'
+         requestBody:
+            $ref: '#/components/requestBodies/Corporation'
+         responses:
+            200:
+               $ref: '#/components/responses/Corporation'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+   /corporations/{uuid}/audit-trail:
+      get:
+         description: Audit trail for a single entity.
+         tags:
+         - legal-entities
+         operationId: getCorporationAuditTrail
+         parameters:
+         -  $ref: '#/components/parameters/UUID'
+         responses:
+            200:
+               $ref: '#/components/responses/CorporationAudit'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+   /corporations/{country}/{code}:
+      get:
+         description: Retreive a single corporation based on its company code.
+         tags:
+         - legal-entities
+         operationId: getCorporationByCode
+         parameters:
+         -  $ref: '#/components/parameters/Country'
+         -  $ref: '#/components/parameters/Code'
+         responses:
+            200:
+               $ref: '#/components/responses/Corporation'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+   /people:
+      post:
+         description: Create a single person.
+         tags:
+         - legal-entities
+         operationId: createPerson
+         requestBody:
+            $ref: '#/components/requestBodies/Person'
+         responses:
+            200:
+               $ref: '#/components/responses/Person'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+   /people/{uuid}:
+      get:
+         description: Retreive a single person based on its unique uuid primary key.
+         tags:
+         - legal-entities
+         operationId: getPerson
+         parameters:
+         -  $ref: '#/components/parameters/UUID'
+         responses:
+            200:
+               $ref: '#/components/responses/Person'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+      patch:
+         description: Update a single person.
+         tags:
+         - legal-entities
+         operationId: updatePerson
+         parameters:
+         -  $ref: '#/components/parameters/UUID'
+         requestBody:
+            $ref: '#/components/requestBodies/Person'
+         responses:
+            200:
+               $ref: '#/components/responses/Person'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+   /people/{uuid}/audit-trail:
+      get:
+         description: Audit trail for a single entity.
+         tags:
+         - legal-entities
+         operationId: getPersonAuditTrail
+         parameters:
+         -  $ref: '#/components/parameters/UUID'
+         responses:
+            200:
+               $ref: '#/components/responses/PersonAudit'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+   /bank-accounts:
+      put:
+         description: Create or locate a bank account.
+         tags:
+         - bank-accounts
+         operationId: createBankAccount
+         requestBody:
+            $ref: '#/components/requestBodies/BankAccount'
+         responses:
+            200:
+               $ref: '#/components/responses/BankAccount'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+   /bank-accounts/{uuid}:
+      get:
+         description: Retreive a single bank-account based on its unique uuid primary key.
+         tags:
+         - bank-accounts
+         operationId: getBankAccount
+         parameters:
+         -  $ref: '#/components/parameters/UUID'
+         responses:
+            200:
+               $ref: '#/components/responses/BankAccount'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+   /bank-accounts/{uuid}/audit-trail:
+      get:
+         description: Audit trail for a single entity.
+         tags:
+         - bank-accounts
+         operationId: getBankAccountAuditTrail
+         parameters:
+         -  $ref: '#/components/parameters/UUID'
+         responses:
+            200:
+               $ref: '#/components/responses/BankAccountAudit'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+   /bank-accounts/{uuid}/beneficial-owners:
+      get:
+         description: Retreive the benefifial owners for a single account.
+         tags:
+         - bank-accounts
+         operationId: getBankAccountBeneficialOwners
+         parameters:
+         -  $ref: '#/components/parameters/UUID'
+         responses:
+            200:
+               $ref: '#/components/responses/BeneficialOwners'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+   /customer-accounts/{uuid}:
+      get:
+         description: Retreive a single customer-account based on its unique uuid primary key.
+         tags:
+         - customer-accounts
+         operationId: getCustomerAccount
+         parameters:
+         -  $ref: '#/components/parameters/UUID'
+         responses:
+            200:
+               $ref: '#/components/responses/CustomerAccount'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+   /customer-accounts/{uuid}/beneficial-owners:
+      get:
+         description: Retreive the benefifial owners for a single account.
+         tags:
+         - customer-accounts
+         operationId: getCustomerAccountBeneficialOwners
+         parameters:
+         -  $ref: '#/components/parameters/UUID'
+         responses:
+            200:
+               $ref: '#/components/responses/BeneficialOwners'
+            400:
+               $ref: '#/components/responses/ServiceException'
+            401:
+               description: Unauthorized
+            403:
+               description: Forbidden
+            5XX:
+               description: Unexpected error
+components:
+   parameters:
+      UUID:
+         schema:
+            type: string
+            format: uuid
+         name: uuid
+         in: path
+         required: true
+      ID:
+         schema:
+            type: string
+         name: id
+         in: path
+         required: true
+      Country:
+         schema:
+            type: string
+         name: country
+         in: path
+         required: true
+      Code:
+         schema:
+            type: string
+         name: code
+         in: path
+         required: true
+      PageCursor:
+         schema:
+            type: string
+         name: page[cursor]
+         in: query
+      PageSize:
+         schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 300
+            default: 200
+         name: page[size]
+         in: query
+   requestBodies:
+      BankAccount:
+         required: true
+         content:
+            application/json:
+               schema:
+                  $ref: '#/components/schemas/BankAccount'
+      Person:
+         required: true
+         content:
+            application/json:
+               schema:
+                  $ref: '#/components/schemas/Person'
+      Corporation:
+         required: true
+         content:
+            application/json:
+               schema:
+                  $ref: '#/components/schemas/Corporation'
+   responses:
+      ServiceException:
+         content:
+            application/json:
+               schema:
+                  $ref: '#/components/schemas/ExceptionDetail'
+         description: Contains error message
+      Country:
+         description: successful operation
+         content:
+            application/json:
+               schema:
+                  $ref: '#/components/schemas/Country'
+      Countries:
+         description: successful operation
+         content:
+            application/json:
+               schema:
+                  type: array
+                  items:
+                     $ref: '#/components/schemas/Country'
+      Currency:
+         description: successful operation
+         content:
+            application/json:
+               schema:
+                  $ref: '#/components/schemas/Currency'
+      Currencies:
+         description: successful operation
+         content:
+            application/json:
+               schema:
+                  type: array
+                  items:
+                     $ref: '#/components/schemas/Currency'
+      Silo:
+         description: successful operation
+         content:
+            application/json:
+               schema:
+                  $ref: '#/components/schemas/Silo'
+      Silos:
+         description: successful operation
+         content:
+            application/json:
+               schema:
+                  type: array
+                  items:
+                     $ref: '#/components/schemas/Silo'
+      Person:
+         description: successful operation
+         content:
+            application/json:
+               schema:
+                  $ref: '#/components/schemas/Person'
+      PersonAudit:
+         description: successful operation
+         content:
+            application/json:
+               schema:
+                  type: array
+                  items:
+                     $ref: '#/components/schemas/PersonAudit'
+      Corporation:
+         description: successful operation
+         content:
+            application/json:
+               schema:
+                  $ref: '#/components/schemas/Corporation'
+      CorporationAudit:
+         description: successful operation
+         content:
+            application/json:
+               schema:
+                  type: array
+                  items:
+                     $ref: '#/components/schemas/CorporationAudit'
+      BankAccount:
+         description: successful operation
+         content:
+            application/json:
+               schema:
+                  $ref: '#/components/schemas/BankAccount'
+      BankAccountAudit:
+         description: successful operation
+         content:
+            application/json:
+               schema:
+                  type: array
+                  items:
+                     $ref: '#/components/schemas/BankAccountAudit'
+      CustomerAccount:
+         description: successful operation
+         content:
+            application/json:
+               schema:
+                  $ref: '#/components/schemas/CustomerAccount'
+      BeneficialOwners:
+         description: successful operation
+         content:
+            application/json:
+               schema:
+                  type: array
+                  items:
+                     $ref: '#/components/schemas/LegalEntity'
+   schemas:
+      CountryCode:
+         description: ISO 3166-1 Alpha-2 country code
+         type: string
+         pattern: ^[A-Z]{2}$
+      CountryCodeAlpha3:
+         description: ISO 3166-1 Alpha-3 country code
+         type: string
+         pattern: ^[A-Z]{3}$
+      CountryCodeNumeric:
+         description: ISO 3166-1 numeric country code
+         type: string
+         pattern: ^[0-9]{3}$
+      CurrencyCode:
+         description: ISO 4217 currency code
+         type: string
+         pattern: ^[A-Z]{3}$
+      BusinessIdentifierCode:
+         description: ISO 9362 8 or 11 character BIC code
+         type: string
+         pattern: ^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$
+      Iban:
+         description: ISO 13616 International Bank Account Number (IBAN)
+         type: string
+         pattern: ^[A-Z]{2}[0-9]{2}[A-Z0-9]{30}$
+      CustomerAccountType:
+         type: string
+         enum:
+         - PERSONAL
+         - CORPORATE
+         - CHARITY
+         - AGENT
+         - LIQUIDITY_PROVIDER
+         - BANKER
+      CustomerAccountState:
+         type: string
+         enum:
+         - DATA_REQUIRED
+         - UNDER_REVIEW
+         - ACCEPTED
+         - REJECTED
+         - NOT_REQUIRED
+         - LAPSED
+         - INACTIVE
+         - CLOSED
+      ResourceState:
+         type: string
+         enum:
+         - ACTIVE
+         - INACTIVE
+         - DELETED
+      SiloType:
+         type: string
+         enum:
+         - TREASURY
+         - BUSINESS_UNIT
+         - SUBSIDIARY
+         - AGENT
+      Meta:
+         type: object
+         properties:
+            nextCursor:
+               type: string
+      BankAccount:
+         type: object
+         properties:
+            id:
+               type: string
+               format: uuid
+            resourceType:
+               type: string
+               default: bank-accounts
+               readOnly: true
+            beneficiary:
+               type: string
+            beneficiaryAddress:
+               type: string
+            nickname:
+               type: string
+            iban:
+               $ref: '#/components/schemas/Iban'
+            bic:
+               $ref: '#/components/schemas/BusinessIdentifierCode'
+            accountNumber:
+               type: string
+            nationalBankCode:
+               type: string
+            nationalBranchCode:
+               type: string
+            nationalClearingCode:
+               type: string
+            currency:
+               $ref: '#/components/schemas/CurrencyCode'
+            country:
+               $ref: '#/components/schemas/CountryCode'
+      BankAccountAudit:
+         type: object
+         properties:
+            resource:
+               type: string
+               format: uuid
+            resourceType:
+               type: string
+               default: bank-account-audits
+               readOnly: true
+            version:
+               type: integer
+            beneficiary:
+               type: string
+            beneficiaryAddress:
+               type: string
+            nickname:
+               type: string
+            iban:
+               $ref: '#/components/schemas/Iban'
+            bic:
+               $ref: '#/components/schemas/BusinessIdentifierCode'
+            accountNumber:
+               type: string
+            nationalBankCode:
+               type: string
+            nationalBranchCode:
+               type: string
+            nationalClearingCode:
+               type: string
+            currency:
+               $ref: '#/components/schemas/CurrencyCode'
+            country:
+               $ref: '#/components/schemas/CountryCode'
+      CustomerAccount:
+         type: object
+         properties:
+            id:
+               type: string
+               format: uuid
+            resourceType:
+               type: string
+               default: customer-accounts
+               readOnly: true
+            name:
+               type: string
+            description:
+               type: string
+            accountType:
+               $ref: '#/components/schemas/CustomerAccountType'
+            accountState:
+               $ref: '#/components/schemas/CustomerAccountState'
+            accountManager:
+               type: string
+               format: uuid
+            accountCreationTime:
+               type: string
+               format: date-time
+            silo:
+               type: string
+      LegalEntity:
+         type: object
+         discriminator:
+            propertyName: resourceType
+         properties:
+            id:
+               type: string
+               format: uuid
+      Person:
+         allOf:
+         -  $ref: '#/components/schemas/LegalEntity'
+         -  type: object
+            properties:
+               resourceType:
+                  type: string
+                  default: people
+                  readOnly: true
+               firstName:
+                  type: string
+               lastName:
+                  type: string
+               duplicates:
+                  type: string
+                  format: uuid
+            required:
+            - resourceType
+      PersonAudit:
+         type: object
+         properties:
+            resource:
+               type: string
+               format: uuid
+            resourceType:
+               type: string
+               default: person-audits
+               readOnly: true
+            version:
+               type: integer
+            firstName:
+               type: string
+            lastName:
+               type: string
+            duplicates:
+               type: string
+               format: uuid
+      Corporation:
+         allOf:
+         -  $ref: '#/components/schemas/LegalEntity'
+         -  type: object
+            properties:
+               resourceType:
+                  type: string
+                  default: corporations
+                  readOnly: true
+               name:
+                  type: string
+               code:
+                  type: string
+               incorporationDate:
+                  type: string
+                  format: date
+               incorporationCountry:
+                  $ref: '#/components/schemas/CountryCode'
+               type:
+                  type: string
+               duplicates:
+                  type: string
+                  format: uuid
+            required:
+            - resourceType
+      CorporationAudit:
+         type: object
+         properties:
+            resource:
+               type: string
+               format: uuid
+            resourceType:
+               type: string
+               default: corporation-audits
+               readOnly: true
+            version:
+               type: integer
+            name:
+               type: string
+            code:
+               type: string
+            incorporationDate:
+               type: string
+               format: date
+            incorporationCountry:
+               $ref: '#/components/schemas/CountryCode'
+            type:
+               type: string
+            duplicates:
+               type: string
+               format: uuid
+      Country:
+         type: object
+         properties:
+            id:
+               $ref: '#/components/schemas/CountryCode'
+            resourceType:
+               type: string
+               default: countries
+               readOnly: true
+            name:
+               type: string
+            numericCode:
+               $ref: '#/components/schemas/CountryCodeNumeric'
+            alpha3Code:
+               $ref: '#/components/schemas/CountryCodeAlpha3'
+            eurozone:
+               type: boolean
+            sepa:
+               type: boolean
+      Currency:
+         type: object
+         properties:
+            id:
+               $ref: '#/components/schemas/CurrencyCode'
+            resourceType:
+               type: string
+               default: currencies
+               readOnly: true
+            name:
+               type: string
+      Silo:
+         type: object
+         properties:
+            id:
+               type: string
+            resourceType:
+               type: string
+               default: silos
+               readOnly: true
+            name:
+               type: string
+            description:
+               type: string
+            email:
+               type: string
+            defaultBaseCurrency:
+               $ref: '#/components/schemas/CurrencyCode'
+            defaultCreditLimit:
+               type: number
+               minimum: 0.0
+            defaultProfitShare:
+               type: number
+               minimum: 0.0
+               maximum: 1.0
+            type:
+               $ref: '#/components/schemas/SiloType'
+      ExceptionDetail:
+         type: object
+         description: Contains error message
+         properties:
+            status:
+               type: integer
+               format: int32
+               minimum: 400
+            error:
+               type: string
+            message:
+               type: string
+            messages:
+               type: array
+               nullable: false
+               items:
+                  type: string

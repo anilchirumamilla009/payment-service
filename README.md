@@ -1,6 +1,6 @@
 # Payment Service
 
-Core microservice managing state and access to core data entities including countries, currencies, silos, legal entities (people and corporations), bank accounts, and customer accounts.
+A Spring Boot 3.2.5 microservice (Java 17) managing state and access to core data entities: countries, currencies, silos, legal entities (people/corporations), bank accounts, and customer accounts.
 
 ## Technology Stack
 
@@ -12,9 +12,42 @@ Core microservice managing state and access to core data entities including coun
 | ORM             | Spring Data JPA / Hibernate                 |
 | Migrations      | Flyway                                      |
 | DTO Mapping     | MapStruct 1.5.5                             |
-| API Spec        | OpenAPI 3.0 (code-gen via openapi-generator) |
+| API Spec        | OpenAPI 3.0 (`src/main/resources/openapi.yaml`) |
 | Testing         | JUnit 5, Mockito, Spring MockMvc            |
-| Build           | Maven                                       |
+| Build           | Maven 3.9.x                                 |
+
+## Build & Run Instructions
+
+### Prerequisites
+
+- Java 17 or higher
+- Maven 3.9.x
+- Platform: Windows or Unix-like system
+
+### Building the Project
+
+```bash
+# Navigate to project directory
+cd c:\AI-Development\AI-Payment-service\payment-service
+
+# Clean and compile
+mvn clean compile
+
+# Build the project
+mvn clean install -DskipTests
+
+# Run the application
+mvn spring-boot:run
+```
+
+The application will be available at `http://localhost:8080`
+
+### Accessing H2 Console
+
+- URL: `http://localhost:8080/h2-console`
+- JDBC URL: `jdbc:h2:mem:testdb`
+- Username: `sa`
+- Password: (leave empty)
 
 ## Architecture
 
